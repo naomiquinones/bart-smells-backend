@@ -4,6 +4,10 @@ from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
+from colorama import init, Fore, Back, Style
+# below init is for colorama
+# use autoreset=True to reset colorama
+init(autoreset=True)
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -38,7 +42,7 @@ def create_app(test_config=None):
     app.register_blueprint(reports_bp)
     app.register_blueprint(riders_bp)
 
-    print("Creating app")
+    print("\n" + '\033[45m' + Fore.WHITE + "*-*-*-       Creating app" + "      *-*-*- Yay!")
 
     CORS(app)
     return app
