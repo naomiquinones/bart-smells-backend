@@ -1,0 +1,44 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+import os
+from dotenv import load_dotenv
+from flask_cors import CORS
+
+db = SQLAlchemy()
+migrate = Migrate()
+load_dotenv()
+
+def create_app(test_config=None):
+    app = Flask(__name__)
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    if test_config is None:
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+            "DB_URI")
+    else:
+        app.config["TESTING"] = True
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+            "DB_URI_TEST")
+
+    # Import models here for Alembic setup
+    from app.models.report import Report
+    from app.models.rider import Rider
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    # Register Blueprints here
+
+    from .routes import root_bp
+    from .routes import reports_bp
+    from .routes import riders_bp
+
+    app.register_blueprint(root_bp)
+    app.register_blueprint(reports_bp)
+    app.register_blueprint(riders_bp)
+
+    print("Creating app")
+
+    CORS(app)
+    return app
