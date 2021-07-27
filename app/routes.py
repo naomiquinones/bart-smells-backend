@@ -19,7 +19,7 @@ riders_bp = Blueprint('riders', __name__, url_prefix='/riders')
 def index():
     return '''<h1 style="color:#B6AC3F;font-size:7vw">BART Smells app</h1>'''
 
-
+# Functions to handle report requests
 @reports_bp.route('', methods=['GET', 'POST'], strict_slashes=False)
 def handle_reports():
     print(Fore.BLUE + 'Loading reports...'+ Style.RESET_ALL)
@@ -33,15 +33,61 @@ def handle_reports():
     elif request.method == "POST":
         print(Fore.GREEN + 'Creating report...'+ Style.RESET_ALL)
         req_body = request.get_json()
-        if not req_body or "type" not in req_body or "description" not in req_body or "train" not in req_body or "direction" not in req_body or "car_number" not in req_body or "rider_id" not in req_body:
+        if not req_body or "type" not in req_body or "description" not in req_body or "route" not in req_body or "destination" not in req_body or "car_number" not in req_body or "rider_id" not in req_body:
             return make_response(jsonify({"error": "Missing data"}), 400)
 
-        new_report = Report(date=datetime.now(), type=req_body["type"], description=req_body["description"], train=req_body["train"], direction=req_body["direction"], car_number=req_body["car_number"], rider_id=req_body["rider_id"])
+        new_report = Report(date=datetime.now(), type=req_body["type"], description=req_body["description"], route=req_body["route"], destination=req_body["destination"], car_number=req_body["car_number"], rider_id=req_body["rider_id"])
         db.session.add(new_report)
         db.session.commit()
 
         return make_response(jsonify({"message": "Report created"},{"report":new_report.to_dict()}), 201)
 
+@reports_bp.route('/<report_id>', methods=['GET', 'PUT', 'DELETE'], strict_slashes=False)
+def handle_report(report_id):
+    report = Report.query.get(report_id)
+    if report is None:
+        return make_response("Report not found", 404)
+
+    if request.method == "GET":
+        return make_response(jsonify({"report":report.to_dict()}), 200)
+
+    elif request.method == "PUT":
+        form_data = request.get_json()
+        # check for missing data
+        if not form_data or "type" not in form_data or "description" not in form_data or "route" not in form_data or "destination" not in form_data or "car_number" not in form_data:
+            return make_response(jsonify({"error": "Invalid or missing data"}), 400)
+        # check for duplicate data
+        if form_data["type"] == report.type and form_data["description"] == report.description and form_data["route"] == report.route and form_data["destination"] == report.destination and form_data["car_number"] == report.car_number and form_data["rider_id"] == report.rider_id:
+            return make_response(jsonify({"error": "No change"}), 200)
+
+        # update report
+        report.update_from_form_data(form_data)
+        db.session.commit()
+        return make_response(jsonify({"message": "Report updated"},{"report":report.to_dict()}), 200)
+
+    elif request.method == "DELETE":
+        db.session.delete(report)
+        db.session.commit()
+        return make_response(jsonify({"message": f"'{report.type}' report successfully deleted"}), 200)
+
+@reports_bp.route('/<report_id>/votes',methods=['PATCH'])
+def update_report_votes(report_id):
+    report = Report.query.get(report_id)
+    if report is None:
+        return make_response("Report not found", 404)
+
+    form_data = request.get_json()
+    # check for missing data
+    if not form_data or "vote" not in form_data:
+        return make_response(jsonify({"error": "Invalid or missing data"}), 400)
+
+    # update votes
+    report.update_votes(form_data["vote"])
+    db.session.commit()
+    return make_response(jsonify({"message": "Report successfully updated"},{"report":report.to_dict()}), 200)
+
+
+# Functions to handle rider requests
 @riders_bp.route('', methods=['GET', 'POST'], strict_slashes=False)
 def handle_riders():
     print(Fore.BLUE + 'Loading riders...'+ Style.RESET_ALL)
@@ -64,3 +110,33 @@ def handle_riders():
         db.session.commit()
 
         return make_response(jsonify({"message": "Rider created"},{"rider":new_rider.to_dict()}), 201)
+
+@riders_bp.route('/<rider_id>', methods=['GET', 'PUT', 'DELETE'], strict_slashes=False)
+def handle_rider(rider_id):
+    rider = Rider.query.get(rider_id)
+    if rider is None:
+        return make_response("Rider not found", 404)
+
+    if request.method == "GET":
+        return make_response(jsonify({"rider":rider.to_dict()}), 200)
+
+    elif request.method == "PUT":
+        form_data = request.get_json()
+        # check for missing data
+        if not form_data or "name" not in form_data:
+            return make_response(jsonify({"error": "Invalid or missing data"}), 400)
+        
+        # check for duplicate data
+        if form_data["name"] == rider.name:
+            if ("email" in form_data and form_data["email"] == rider.email) or "email" not in form_data:
+                return make_response(jsonify({"error": "No change"}), 200)
+
+        # update rider
+        rider.update_from_form_data(form_data)
+        db.session.commit()
+        return make_response(jsonify({"message": "Rider updated"},{"rider":rider.to_dict()}), 200)
+
+    elif request.method == "DELETE":
+        db.session.delete(rider)
+        db.session.commit()
+        return make_response(jsonify({"message": f"'{rider.name}' rider successfully deleted"}), 200)

@@ -42,7 +42,7 @@ def create_app(test_config=None):
     app.register_blueprint(reports_bp)
     app.register_blueprint(riders_bp)
 
-    print("\n" + '\033[45m' + Fore.WHITE + "*-*-*-       Creating app" + "      *-*-*- Yay!")
+    print("\n" + '\033[45m' + Fore.WHITE + "*-*-*-       Creating app" + "      *-*-*-        Yay!")
 
     CORS(app)
     return app

@@ -20,3 +20,11 @@ class Rider(db.Model):
             'email': self.email,
             'reports': [report.to_dict() for report in self.reports]
         }
+
+    def update_email(self, email):
+        self.email = email
+
+    def update_from_form_data(self, data):
+        for key, value in data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)

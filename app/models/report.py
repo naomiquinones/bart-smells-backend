@@ -8,14 +8,14 @@ class Report (db.Model):
     date = db.Column(db.DateTime, nullable=False)
     type = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(500), nullable=False)
-    train = db.Column(db.String(50), nullable=False)
-    direction = db.Column(db.String(50), nullable=False)
+    route = db.Column(db.String(50), nullable=False)
+    destination = db.Column(db.String(50), nullable=False)
     car_number = db.Column(db.String(5), nullable=False)
     votes = db.Column(db.Integer, default=0)
     rider_id = db.Column(db.Integer, db.ForeignKey('rider.id'), nullable=False)
 
     def __repr__(self):
-        return f'Report({self.type}, {self.train} going to {self.direction} on {self.date})'
+        return f'Report({self.type}, {self.route} going to {self.destination} on {self.date})'
 
     def to_dict(self):
         return {
@@ -23,9 +23,17 @@ class Report (db.Model):
             'date': self.date,
             'type': self.type,
             'description': self.description,
-            'train': self.train,
-            'direction': self.direction,
+            'route': self.route,
+            'destination': self.destination,
             'car_number': self.car_number,
             'votes': self.votes,
             'rider_id': self.rider_id
         }
+
+    def update_votes(self, vote):
+        self.votes += int(vote)
+
+    def update_from_form_data(self, data):
+        for key, value in data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
