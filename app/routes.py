@@ -33,10 +33,10 @@ def handle_reports():
     elif request.method == "POST":
         print(Fore.GREEN + 'Creating report...'+ Style.RESET_ALL)
         req_body = request.get_json()
-        if not req_body or "type" not in req_body or "description" not in req_body or "route" not in req_body or "destination" not in req_body or "car_number" not in req_body or "rider_id" not in req_body:
+        if not req_body or "type" not in req_body or "description" not in req_body or "route" not in req_body or "direction" not in req_body or "car_number" not in req_body or "rider_id" not in req_body:
             return make_response(jsonify({"error": "Missing data"}), 400)
 
-        new_report = Report(date=datetime.now(), type=req_body["type"], description=req_body["description"], route=req_body["route"], destination=req_body["destination"], car_number=req_body["car_number"], rider_id=req_body["rider_id"])
+        new_report = Report(date=datetime.now(), type=req_body["type"], description=req_body["description"], route=req_body["route"], direction=req_body["direction"], car_number=req_body["car_number"], rider_id=req_body["rider_id"])
         db.session.add(new_report)
         db.session.commit()
 
@@ -54,10 +54,10 @@ def handle_report(report_id):
     elif request.method == "PUT":
         form_data = request.get_json()
         # check for missing data
-        if not form_data or "type" not in form_data or "description" not in form_data or "route" not in form_data or "destination" not in form_data or "car_number" not in form_data:
+        if not form_data or "type" not in form_data or "description" not in form_data or "route" not in form_data or "direction" not in form_data or "car_number" not in form_data:
             return make_response(jsonify({"error": "Invalid or missing data"}), 400)
         # check for duplicate data
-        if form_data["type"] == report.type and form_data["description"] == report.description and form_data["route"] == report.route and form_data["destination"] == report.destination and form_data["car_number"] == report.car_number and form_data["rider_id"] == report.rider_id:
+        if form_data["type"] == report.type and form_data["description"] == report.description and form_data["route"] == report.route and form_data["direction"] == report.direction and form_data["car_number"] == report.car_number and form_data["rider_id"] == report.rider_id:
             return make_response(jsonify({"error": "No change"}), 200)
 
         # update report

@@ -9,13 +9,13 @@ class Report (db.Model):
     type = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(500), nullable=False)
     route = db.Column(db.String(50), nullable=False)
-    destination = db.Column(db.String(50), nullable=False)
+    direction = db.Column(db.String(50), nullable=False)
     car_number = db.Column(db.String(5), nullable=False)
     votes = db.Column(db.Integer, default=0)
     rider_id = db.Column(db.Integer, db.ForeignKey('rider.id'), nullable=False)
 
     def __repr__(self):
-        return f'Report({self.type}, {self.route} going to {self.destination} on {self.date})'
+        return f'Report({self.type}, {self.route} going to {self.direction} on {self.date})'
 
     def to_dict(self):
         return {
@@ -24,7 +24,7 @@ class Report (db.Model):
             'type': self.type,
             'description': self.description,
             'route': self.route,
-            'destination': self.destination,
+            'direction': self.direction,
             'car_number': self.car_number,
             'votes': self.votes,
             'rider_id': self.rider_id
