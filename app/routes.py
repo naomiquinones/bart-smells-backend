@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, make_response
+from sqlalchemy import desc
 from app.models.report import Report
 from app.models.rider import Rider
 from app import db

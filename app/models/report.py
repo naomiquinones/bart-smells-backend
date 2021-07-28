@@ -17,6 +17,10 @@ class Report (db.Model):
     def __repr__(self):
         return f'Report({self.type}, {self.route} going to {self.direction} on {self.date})'
 
+    __mapper_args__ = {
+        'order_by': date.desc()
+    }
+
     def to_dict(self):
         return {
             'id': self.id,
