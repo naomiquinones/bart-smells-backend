@@ -33,7 +33,7 @@ def login():
     if not user:
         return make_response(jsonify({'error': 'Username or password incorrect'}), 400)
     # return make_response(jsonify({'token': user.token}), 200)
-    return make_response(jsonify({'user_id': user.id}), 200)
+    return make_response(jsonify({'id': user.id}), 200)
 
 
 # #############################################################################
