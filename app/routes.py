@@ -144,7 +144,7 @@ def handle_riders():
         db.session.add(new_rider)
         db.session.commit()
 
-        return make_response(jsonify({"message": "Rider created"}, {"rider": new_rider.to_dict()}), 201)
+        return make_response(jsonify({"rider": new_rider.to_dict()}), 201)
 
 # #############################################################################
 # Functions to handle individual rider requests
