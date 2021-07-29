@@ -15,6 +15,20 @@ print(Back.GREEN + Fore.BLACK + 'Loading routes...' + Style.RESET_ALL)
 root_bp = Blueprint('root', __name__)
 reports_bp = Blueprint('reports', __name__, url_prefix='/reports')
 riders_bp = Blueprint('riders', __name__, url_prefix='/riders')
+login_bp = Blueprint('login', __name__, url_prefix='/login')
+
+@login_bp.route('', methods=['GET'])
+def login():
+    print(Back.BLUE + Fore.WHITE + 'Loading login route...' + Style.RESET_ALL)
+    req_body = request.get_json()
+    if not req_body or 'username' not in req_body or 'password' not in req_body:
+        return make_response(jsonify({'error': 'Missing username or password'}), 400)
+
+    user = Rider.query.filter_by(name=req_body['username'], password_hash=req_body['password']).first()
+    if not user:
+        return make_response(jsonify({'error': 'Username or password incorrect'}), 400)
+    # return make_response(jsonify({'token': user.token}), 200)
+    return make_response(jsonify({'rider': user.to_dict()}), 200)
 
 @root_bp.route('/', methods=['GET'])
 def index():
@@ -114,7 +128,7 @@ def handle_riders():
 
 @riders_bp.route('/<rider_id>', methods=['GET', 'PUT', 'DELETE'], strict_slashes=False)
 def handle_rider(rider_id):
-    rider = Rider.query.get(rider_id)
+    rider = Rider.query.get(int(rider_id))
     if rider is None:
         return make_response("Rider not found", 404)
 

@@ -37,7 +37,9 @@ def create_app(test_config=None):
     from .routes import root_bp
     from .routes import reports_bp
     from .routes import riders_bp
+    from .routes import login_bp
 
+    app.register_blueprint(login_bp)
     app.register_blueprint(root_bp)
     app.register_blueprint(reports_bp)
     app.register_blueprint(riders_bp)
