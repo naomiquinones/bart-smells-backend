@@ -69,7 +69,7 @@ def handle_reports():
         db.session.add(new_report)
         db.session.commit()
 
-        return make_response(jsonify({"message": "Report created"}, {"report": new_report.to_dict()}), 201)
+        return make_response(jsonify({"report": new_report.to_dict()}), 201)
 
 
 @reports_bp.route('/<report_id>', methods=['GET', 'PUT', 'DELETE'], strict_slashes=False)
@@ -95,6 +95,7 @@ def handle_report(report_id):
         db.session.commit()
         return make_response(jsonify({"message": "Report updated"}, {"report": report.to_dict()}), 200)
 
+    # delete report
     elif request.method == "DELETE":
         db.session.delete(report)
         db.session.commit()
@@ -153,7 +154,7 @@ def handle_riders():
 
 @riders_bp.route('/<rider_id>', methods=['GET', 'PUT', 'DELETE'], strict_slashes=False)
 def handle_rider(rider_id):
-    rider = Rider.query.get(int(rider_id))
+    rider = Rider.query.get(rider_id)
     if rider is None:
         return make_response("Rider not found", 404)
 
@@ -184,7 +185,7 @@ def handle_rider(rider_id):
 
 @riders_bp.route('/<rider_id>/password', methods=['PATCH'], strict_slashes=False)
 def update_rider_password(rider_id):
-    rider = Rider.query.get(int(rider_id))
+    rider = Rider.query.get(rider_id)
     if rider is None:
         return make_response("Rider not found", 404)
     rider.password_hash = request.get_json()["password"]
