@@ -1,5 +1,9 @@
 from flask import Blueprint, request, jsonify, make_response
 from sqlalchemy import desc
+
+# import IntegrityError
+from sqlalchemy.exc import IntegrityError 
+
 from app.models.report import Report
 from app.models.rider import Rider
 from app import db
@@ -62,7 +66,7 @@ def handle_reports():
         print(Fore.GREEN + 'Creating report...' + Style.RESET_ALL)
         req_body = request.get_json()
         if not req_body or "type" not in req_body or "description" not in req_body or "route" not in req_body or "direction" not in req_body or "car_number" not in req_body or "rider_id" not in req_body:
-            return make_response(jsonify({"error": "Missing data"}), 400)
+            return make_response(jsonify({"error": "Missing data. Please fill out all required fields."}), 400)
 
         new_report = Report(date=datetime.now(), type=req_body["type"], description=req_body["description"], route=req_body["route"],
                             direction=req_body["direction"], car_number=req_body["car_number"], rider_id=req_body["rider_id"])
@@ -143,9 +147,16 @@ def handle_riders():
         new_rider = Rider(name=req_body["name"], email=req_body["email"]
                           if "email" in req_body else None, password_hash=req_body["password"])
         db.session.add(new_rider)
-        db.session.commit()
+        try:
+            db.session.commit()
+            return make_response(jsonify({'rider': new_rider.to_dict()}), 201)
+        except IntegrityError as e:
+            print(Fore.RED + 'IntegrityError: ' + Style.RESET_ALL + str(e))
+            db.session.rollback()
+            return make_response(jsonify({"error": "Rider already exists"}), 409)
+        finally:
+            db.session.close()
 
-        return make_response(jsonify({"rider": new_rider.to_dict()}), 201)
 
 # #############################################################################
 # Functions to handle individual rider requests
@@ -179,9 +190,24 @@ def handle_rider(rider_id):
 
     elif request.method == "DELETE":
         db.session.delete(rider)
-        db.session.commit()
-        return make_response(jsonify({"message": f"'{rider.name}' rider successfully deleted"}), 200)
+        try:
+            db.session.commit()
+            return make_response(jsonify({"message": f"'{rider.name}' rider successfully deleted"}), 200)
+        except IntegrityError as e:
+            print(Fore.RED + 'IntegrityError: ' + Style.RESET_ALL + str(e))
+            db.session.rollback()
+            return make_response(jsonify({"error": "Something went wrong"}), 404)
+        except Exception as e:
+            print(Fore.RED + 'Exception: ' + Style.RESET_ALL + str(e))
+            db.session.rollback()
+            return make_response(jsonify({"error": "Your account cannot be deleted. Please contact us."}), 404)
+        finally:
+            db.session.close()
 
+
+# #############################################################################
+# Function to handle password changes for individual riders
+# #############################################################################
 
 @riders_bp.route('/<rider_id>/password', methods=['PATCH'], strict_slashes=False)
 def update_rider_password(rider_id):
