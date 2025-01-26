@@ -44,7 +44,8 @@ def create_app(test_config=None):
     app.register_blueprint(reports_bp)
     app.register_blueprint(riders_bp)
 
-    print("\n" + '\033[45m' + Fore.WHITE + "*-*-*-       Creating app" + "      *-*-*-        Yay!")
+    print("\n" + '\033[45m' + Fore.BLACK + "*-*-*-       Creating app" + "      *-*-*-        Yay!")
 
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+    # CORS(app, origins=["http://localhost:5173", "http://localhost:5173"])
     return app
