@@ -4,7 +4,9 @@ Capstone project for Ada Developers Academy C15-Accelerate program. This MVP is 
 
 ## 2025 Update
 
-Dependencies were updated, and notes were added to this README.
+- Updated dependencies
+- Added CORS support to resolve cross-origin errors
+- Added information to this README
 
 ## Setup
 
