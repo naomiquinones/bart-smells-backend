@@ -47,5 +47,4 @@ def create_app(test_config=None):
     print("\n" + '\033[45m' + Fore.BLACK + "*-*-*-       Creating app" + "      *-*-*-        Yay!")
 
     CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
-    # CORS(app, origins=["http://localhost:5173", "http://localhost:5173"])
     return app
